@@ -4,7 +4,7 @@ import "github.com/orvyl/kit/id"
 import "fmt"
 
 func main() {
-	idGen, err := id.NewGenerator(id.Settings{IsAlphaNumeric: true})
+	idGen, err := id.NewGenerator(true, id.Settings{})
   if err != nil {
     fmt.Printf("ERR %v", err)
   }

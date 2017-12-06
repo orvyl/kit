@@ -21,7 +21,6 @@ type Generator interface {
 type Settings struct {
 	TimeSeed       time.Time
 	Salt           string
-	IsAlphaNumeric bool
 	InDocker       bool
 }
 
@@ -60,13 +59,13 @@ func (n *num) Next() (interface{}, error) {
 	return id, nil
 }
 
-func NewGenerator(s Settings) (Generator, error) {
+func NewGenerator(isAlphaNumeric bool, s Settings) (Generator, error) {
 	sf, err := newSonyflake(s.TimeSeed, s.InDocker)
 	if err != nil {
 		return nil, err
 	}
 
-	if s.IsAlphaNumeric {
+	if isAlphaNumeric {
 		hd := hashids.NewData()
 
 		salt := DEFAULT_SALT
