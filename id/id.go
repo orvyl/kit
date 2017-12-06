@@ -26,16 +26,12 @@ type Settings struct {
 }
 
 type alphanum struct {
-	h *hashids.HashID
+	sf *sonyflake.Sonyflake
+	h  *hashids.HashID
 }
 
 func (a *alphanum) Next() (interface{}, error) {
-	var s sonyflake.Settings
-	t, _ := time.Parse("2006-01-02T15:04:05", DEFAULT_SONYFLAKE_TIME)
-	s.StartTime = t
-	idGen := sonyflake.NewSonyflake(s)
-
-	nid, err := idGen.NextID()
+	nid, err := a.sf.NextID()
 	if err != nil {
 		log.Panic("Failed to generate ID: " + err.Error())
 		return nil, err
@@ -65,6 +61,11 @@ func (n *num) Next() (interface{}, error) {
 }
 
 func NewGenerator(s Settings) (Generator, error) {
+	sf, err := newSonyflake(s.TimeSeed, s.InDocker)
+	if err != nil {
+		return nil, err
+	}
+
 	if s.IsAlphaNumeric {
 		hd := hashids.NewData()
 
@@ -79,25 +80,29 @@ func NewGenerator(s Settings) (Generator, error) {
 			return nil, err
 		}
 
-		return &alphanum{h: h}, nil
+		return &alphanum{h: h, sf: sf}, nil
 	}
 
-	var st sonyflake.Settings
-	t, _ := time.Parse("2006-01-02T15:04:05", DEFAULT_SONYFLAKE_TIME)
-	if !s.TimeSeed.IsZero() {
-		t = s.TimeSeed
-	}
-	st.StartTime = t
+	return &num{sf: sf}, nil
+}
 
-	if s.InDocker {
-		st.MachineID = awsutil.AmazonEC2MachineID
+func newSonyflake(tseed time.Time, inDocker bool) (*sonyflake.Sonyflake, error) {
+	var s sonyflake.Settings
+
+	s.StartTime = tseed
+	if tseed.IsZero() {
+		s.StartTime, _ = time.Parse("2006-01-02T15:04:05", DEFAULT_SONYFLAKE_TIME)
 	}
 
-	sf := sonyflake.NewSonyflake(st)
+	if inDocker {
+		s.MachineID = awsutil.AmazonEC2MachineID
+	}
+
+	sf := sonyflake.NewSonyflake(s)
 	if sf == nil {
 		log.Panic("Failed to initialize ID generator (sonyflake)")
 		return nil, errors.New("Failed to initialize ID generator (sonyflake)")
 	}
 
-	return &num{sf: sf}, nil
+	return sf, nil
 }
