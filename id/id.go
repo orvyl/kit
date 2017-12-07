@@ -19,9 +19,9 @@ type Generator interface {
 }
 
 type Settings struct {
-	TimeSeed       time.Time
-	Salt           string
-	InDocker       bool
+	TimeSeed   time.Time
+	Salt       string
+	UseAWSData bool
 }
 
 type alphanum struct {
@@ -60,7 +60,7 @@ func (n *num) Next() (interface{}, error) {
 }
 
 func NewGenerator(isAlphaNumeric bool, s Settings) (Generator, error) {
-	sf, err := newSonyflake(s.TimeSeed, s.InDocker)
+	sf, err := newSonyflake(s.TimeSeed, s.UseAWSData)
 	if err != nil {
 		return nil, err
 	}
@@ -68,11 +68,11 @@ func NewGenerator(isAlphaNumeric bool, s Settings) (Generator, error) {
 	if isAlphaNumeric {
 		hd := hashids.NewData()
 
-		salt := DEFAULT_SALT
+		hd.Salt = DEFAULT_SALT
 		if len(s.Salt) > 0 {
-			salt = s.Salt
+			hd.Salt = s.Salt
 		}
-		hd.Salt = salt
+
 		h, err := hashids.NewWithData(hd)
 		if err != nil {
 			log.Panic("Failed to initialized ID generator: ", err.Error())
@@ -85,7 +85,7 @@ func NewGenerator(isAlphaNumeric bool, s Settings) (Generator, error) {
 	return &num{sf: sf}, nil
 }
 
-func newSonyflake(tseed time.Time, inDocker bool) (*sonyflake.Sonyflake, error) {
+func newSonyflake(tseed time.Time, UseAWSData bool) (*sonyflake.Sonyflake, error) {
 	var s sonyflake.Settings
 
 	s.StartTime = tseed
@@ -93,7 +93,7 @@ func newSonyflake(tseed time.Time, inDocker bool) (*sonyflake.Sonyflake, error) 
 		s.StartTime, _ = time.Parse("2006-01-02T15:04:05", DEFAULT_SONYFLAKE_TIME)
 	}
 
-	if inDocker {
+	if UseAWSData {
 		s.MachineID = awsutil.AmazonEC2MachineID
 	}
 

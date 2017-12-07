@@ -4,7 +4,7 @@ import "github.com/orvyl/kit/id"
 import "fmt"
 
 func main() {
-	idGen, err := id.NewGenerator(true, id.Settings{})
+	idGen, err := id.NewGenerator(true, id.Settings{UseAWSData:false})
   if err != nil {
     fmt.Printf("ERR %v", err)
   }
