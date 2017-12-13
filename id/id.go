@@ -1,7 +1,7 @@
 package id
 
 import (
-	"errors"
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/sony/sonyflake"
 	"github.com/sony/sonyflake/awsutil"
@@ -37,7 +37,7 @@ func (a *alphanum) Next() (interface{}, error) {
 
 	id, err := a.h.Encode([]int{int(nid)})
 	if err != nil {
-		return nil, erros.Wrapf(err, "Failed to encode ID using hashids.HashID")
+		return nil, errors.Wrapf(err, "Failed to encode ID using hashids.HashID")
 	}
 
 	return id, nil
@@ -95,7 +95,7 @@ func newSonyflake(tseed time.Time, UseAWSData bool) (*sonyflake.Sonyflake, error
 
 	sf := sonyflake.NewSonyflake(s)
 	if sf == nil {
-		return nil, errors.New("Failed to initialize ID generator (sonyflake)")
+		return nil, fmt.Errorf("Failed to initialize ID generator (sonyflake)")
 	}
 
 	return sf, nil
