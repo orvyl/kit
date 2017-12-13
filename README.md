@@ -1,4 +1,4 @@
-# Orvyl's Go Kt
+# Orvyl's Go Kit
 
 ### orvyl/id
 Provides a Id generator that can produce numeric and alphanumeric seeded with the machine data and start datetime. It uses [sony/sonyflake] and [hashids] as the core libraries.
