@@ -2,10 +2,10 @@ package id
 
 import (
 	"errors"
+	"github.com/pkg/errors"
 	"github.com/sony/sonyflake"
 	"github.com/sony/sonyflake/awsutil"
 	"github.com/speps/go-hashids"
-	"log"
 	"time"
 )
 
@@ -32,14 +32,12 @@ type alphanum struct {
 func (a *alphanum) Next() (interface{}, error) {
 	nid, err := a.sf.NextID()
 	if err != nil {
-		log.Panic("Failed to generate ID: " + err.Error())
-		return nil, err
+		return nil, errors.Wrapf(err, "Failed to execute sonyflake.NextID()")
 	}
 
 	id, err := a.h.Encode([]int{int(nid)})
 	if err != nil {
-		log.Panic("Failed to generate ID: " + err.Error())
-		return nil, err
+		return nil, erros.Wrapf(err, "Failed to encode ID using hashids.HashID")
 	}
 
 	return id, nil
@@ -52,8 +50,7 @@ type num struct {
 func (n *num) Next() (interface{}, error) {
 	id, err := n.sf.NextID()
 	if err != nil {
-		log.Println("Failed to generate ID: " + err.Error())
-		return nil, err
+		return nil, errors.Wrapf(err, "Failed to execute sonyflake.NextID()")
 	}
 
 	return id, nil
@@ -75,8 +72,7 @@ func NewGenerator(isAlphaNumeric bool, s Settings) (Generator, error) {
 
 		h, err := hashids.NewWithData(hd)
 		if err != nil {
-			log.Panic("Failed to initialized ID generator: ", err.Error())
-			return nil, err
+			return nil, errors.Wrapf(err, "Failed to initialized hashids.HashID")
 		}
 
 		return &alphanum{h: h, sf: sf}, nil
@@ -99,7 +95,6 @@ func newSonyflake(tseed time.Time, UseAWSData bool) (*sonyflake.Sonyflake, error
 
 	sf := sonyflake.NewSonyflake(s)
 	if sf == nil {
-		log.Panic("Failed to initialize ID generator (sonyflake)")
 		return nil, errors.New("Failed to initialize ID generator (sonyflake)")
 	}
 
