@@ -2,22 +2,25 @@ package id
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/pkg/errors"
 	"github.com/sony/sonyflake"
 	"github.com/sony/sonyflake/awsutil"
 	"github.com/speps/go-hashids"
-	"time"
 )
 
 const (
-	DEFAULT_SALT           = "z@mmik_orvyl"
-	DEFAULT_SONYFLAKE_TIME = "2017-01-02T08:30:00"
+	defaultSalt          = "z@mmik_orvyl"
+	defaultSonyflakeTime = "2017-01-02T08:30:00"
 )
 
+//Generator wiil produce either string or numeric ID
 type Generator interface {
 	Next() (interface{}, error)
 }
 
+//Settings that will support id generator seed
 type Settings struct {
 	TimeSeed   time.Time
 	Salt       string
@@ -56,6 +59,7 @@ func (n *num) Next() (interface{}, error) {
 	return id, nil
 }
 
+//NewGenerator produces generator. Either string or numeric ID generator
 func NewGenerator(isAlphaNumeric bool, s Settings) (Generator, error) {
 	sf, err := newSonyflake(s.TimeSeed, s.UseAWSData)
 	if err != nil {
@@ -65,7 +69,7 @@ func NewGenerator(isAlphaNumeric bool, s Settings) (Generator, error) {
 	if isAlphaNumeric {
 		hd := hashids.NewData()
 
-		hd.Salt = DEFAULT_SALT
+		hd.Salt = defaultSalt
 		if len(s.Salt) > 0 {
 			hd.Salt = s.Salt
 		}
@@ -86,7 +90,7 @@ func newSonyflake(tseed time.Time, UseAWSData bool) (*sonyflake.Sonyflake, error
 
 	s.StartTime = tseed
 	if tseed.IsZero() {
-		s.StartTime, _ = time.Parse("2006-01-02T15:04:05", DEFAULT_SONYFLAKE_TIME)
+		s.StartTime, _ = time.Parse("2006-01-02T15:04:05", defaultSonyflakeTime)
 	}
 
 	if UseAWSData {
