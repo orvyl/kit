@@ -30,20 +30,6 @@ func CreateKeys(privateKeyWriter, publicKeyWriter io.Writer) error {
 	return xrsa.CreateKeys(publicKeyWriter, privateKeyWriter, defaultKeyLength)
 }
 
-//LoadKeys will load provided key files and return a `XRsa` value for encryption-decryption
-func LoadKeys(privKeyFile, pubKeyFile string) (*xrsa.XRsa, error) {
-	privKeyFByte, err := ioutil.ReadFile(privKeyFile)
-	if err != nil {
-		return nil, err
-	}
-
-	pubKeyFByte, err := ioutil.ReadFile(pubKeyFile)
-	if err != nil {
-		return nil, err
-	}
-	return xrsa.NewXRsa(pubKeyFByte, privKeyFByte)
-}
-
 //EncryptViaPrivateKey will encrypt given `data` using a provided private key
 func EncryptViaPrivateKey(privateKeyF, data string) (string, error) {
 	block, err := getKeyBlock(privateKeyF)
