@@ -35,22 +35,44 @@ func TestCreateKey(t *testing.T) {
 	os.Remove("samplekeys.pem")
 }
 
-func TestLoadKeys(t *testing.T) {
+func TestPrivateEncryptPublicDecrypt(t *testing.T) {
 	privKeyFile := "samplekeys"
 	pubKeyFile := "samplekeys.pem"
 
 	privk, _ := os.Create(privKeyFile)
 	pubk, _ := os.Create(pubKeyFile)
 
-	CreateKeys(privk, pubk)
+	err := CreateKeys(privk, pubk)
+	if err != nil {
+		t.Error("Failed to create keys", err)
+		return
+	}
 
 	xrsa, err := LoadKeys(privKeyFile, pubKeyFile)
 	if err != nil {
 		t.Error("Failed to load keys", err)
+		return
 	}
 
-	if xrsa.privateKey.PublicKey.E != xrsa.publicKey.E {
-		t.Error("Loaded keys not aligned")
+	data := "hello"
+
+	encData, err := xrsa.PrivateEncrypt(data)
+	if err != nil {
+		t.Error("Failed to encrypt using private key", err)
+		return
+	}
+
+	t.Logf("Encryption result : %s -> %s\n", data, encData)
+
+	decData, err := xrsa.PublicDecrypt(encData)
+	if err != nil {
+		t.Error("Failed to decrypt using pub key", err)
+		return
+	}
+
+	if decData != data {
+		t.Error("Data and decnrypted data didn't match")
+		return
 	}
 
 	os.Remove("samplekeys")
