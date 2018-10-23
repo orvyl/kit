@@ -21,7 +21,7 @@ type XRsa struct {
 	privateKey *rsa.PrivateKey
 }
 
-func CreateKeys(publicKeyWriter, privateKeyWriter io.Writer) error {
+func CreateKeys(privateKeyWriter, publicKeyWriter io.Writer) error {
 	privateKey, err := rsa.GenerateKey(rand.Reader, defaultKeyLength)
 	if err != nil {
 		return fmt.Errorf("Failed to generate key: %s", err)
@@ -94,6 +94,9 @@ func LoadKeys(privKeyFile, pubKeyFile string) (*XRsa, error) {
 
 func loadKey(f, keyType string) (interface{}, error) {
 	file, err := ioutil.ReadFile(f)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read file %s: %s", f, err)
+	}
 	keyBlock, _ := pem.Decode(file)
 
 	var keyIntr interface{}
