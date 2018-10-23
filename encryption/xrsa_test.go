@@ -35,7 +35,7 @@ func TestCreateKey(t *testing.T) {
 	os.Remove("samplekeys.pem")
 }
 
-func TestPrivateEncryptPublicDecrypt(t *testing.T) {
+func TestEncryptViaPrivateKeyAndDencryptViaPublicKey(t *testing.T) {
 	privKeyFile := "samplekeys"
 	pubKeyFile := "samplekeys.pem"
 
@@ -48,30 +48,24 @@ func TestPrivateEncryptPublicDecrypt(t *testing.T) {
 		return
 	}
 
-	xrsa, err := LoadKeys(privKeyFile, pubKeyFile)
-	if err != nil {
-		t.Error("Failed to load keys", err)
-		return
-	}
-
 	data := "hello"
 
-	encData, err := xrsa.PrivateEncrypt(data)
+	encData, err := EncryptViaPrivateKey(privKeyFile, data)
 	if err != nil {
-		t.Error("Failed to encrypt using private key", err)
+		t.Error("Failed to encrypt data", err)
 		return
 	}
 
-	t.Logf("Encryption result : %s -> %s\n", data, encData)
+	t.Logf("Data : %s --> %s", data, encData)
 
-	decData, err := xrsa.PublicDecrypt(encData)
+	decData, err := DencryptViaPublicKey(pubKeyFile, encData)
 	if err != nil {
-		t.Error("Failed to decrypt using pub key", err)
+		t.Error("Failed to dencrypt data", err)
 		return
 	}
 
 	if decData != data {
-		t.Error("Data and decnrypted data didn't match")
+		t.Error("Decrypted data didn't match the original data", err)
 		return
 	}
 
