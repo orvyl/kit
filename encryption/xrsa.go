@@ -62,8 +62,8 @@ func EncryptViaPrivateKey(privateKeyF, data string) (string, error) {
 	return base64.RawURLEncoding.EncodeToString(buffer.Bytes()), nil
 }
 
-//DencryptViaPublicKey will dencrypt given `encData` using a provided public key
-func DencryptViaPublicKey(publicKeyF, encData string) (string, error) {
+//DecryptViaPublicKey will decrypt given `encData` using a provided public key
+func DecryptViaPublicKey(publicKeyF, encData string) (string, error) {
 	block, err := getKeyBlock(publicKeyF)
 	if err != nil {
 		return "", err

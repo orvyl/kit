@@ -35,7 +35,7 @@ func TestCreateKey(t *testing.T) {
 	os.Remove("samplekeys.pem")
 }
 
-func TestEncryptViaPrivateKeyAndDencryptViaPublicKey(t *testing.T) {
+func TestEncryptViaPrivateKeyAndDecryptViaPublicKey(t *testing.T) {
 	privKeyFile := "samplekeys"
 	pubKeyFile := "samplekeys.pem"
 
@@ -58,9 +58,9 @@ func TestEncryptViaPrivateKeyAndDencryptViaPublicKey(t *testing.T) {
 
 	t.Logf("Data : %s --> %s", data, encData)
 
-	decData, err := DencryptViaPublicKey(pubKeyFile, encData)
+	decData, err := DecryptViaPublicKey(pubKeyFile, encData)
 	if err != nil {
-		t.Error("Failed to dencrypt data", err)
+		t.Error("Failed to decrypt data", err)
 		return
 	}
 
